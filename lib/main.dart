@@ -39,6 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void loadData() async {
+    print("loading data");
     SharedPreferences preferences = await SharedPreferences.getInstance();
     var servers = preferences.get("servers");
     if (servers == null)

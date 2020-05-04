@@ -5,6 +5,7 @@ class AddServerAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: EdgeInsets.only(bottom: 40),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
