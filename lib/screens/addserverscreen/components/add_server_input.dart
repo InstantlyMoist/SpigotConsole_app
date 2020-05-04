@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 
 class AddServerInput extends StatelessWidget {
 
+  final TextEditingController controller;
   final String title;
   final String hint;
   final bool numeric;
 
-  AddServerInput({this.title, this.hint, this.numeric});
+  AddServerInput({this.controller, this.title, this.hint, this.numeric});
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +30,7 @@ class AddServerInput extends StatelessWidget {
               splashColor: Colors.transparent,
             ),
             child: TextField(
+              controller: controller,
               keyboardType: numeric ? TextInputType.number : TextInputType.text,
               autofocus: false,
               style: TextStyle(fontSize: 14, color: Colors.white),

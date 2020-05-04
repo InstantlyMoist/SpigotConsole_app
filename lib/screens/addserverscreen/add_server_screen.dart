@@ -3,8 +3,39 @@ import 'package:flutter/material.dart';
 import 'package:spigotconsole/screens/addserverscreen/components/add_server_appbar.dart';
 import 'package:spigotconsole/screens/addserverscreen/components/add_server_input.dart';
 import 'package:spigotconsole/screens/addserverscreen/components/add_server_scanner.dart';
+import 'package:web_socket_channel/io.dart';
 
 class AddServerScreen extends StatelessWidget {
+
+  final TextEditingController serverNameController = new TextEditingController();
+  final TextEditingController serverIpController = new TextEditingController();
+  final TextEditingController serverPortController = new TextEditingController();
+
+
+  void handleScan() async {
+    print(serverNameController.value.text);
+    print(serverIpController.value.text);
+    print(serverPortController.value.text);
+
+    String url = 'ws://${serverIpController.value.text}:${serverPortController.value.text}/spigotconsole/';
+    print(url);
+
+    var channel = IOWebSocketChannel.connect(url);
+
+    channel.stream.listen((message) {
+      channel.sink.add("received!");
+
+    });
+
+    /*var options = ScanOptions(
+      restrictFormat: [BarcodeFormat.qr],
+    );
+    var result = await BarcodeScanner.scan(options: options);
+    print(result.rawContent);*/
+
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,6 +51,7 @@ class AddServerScreen extends StatelessWidget {
                 title: "Server name",
                 hint: "My Example Server",
                 numeric: false,
+                controller: serverNameController,
               ),
               Row(
                 children: <Widget>[
@@ -29,6 +61,7 @@ class AddServerScreen extends StatelessWidget {
                       title: "Server IP",
                       hint: "github.com/InstantlyMoist",
                       numeric: false,
+                      controller: serverIpController,
                     ),
                   ),
                   SizedBox(
@@ -40,11 +73,14 @@ class AddServerScreen extends StatelessWidget {
                       title: "Port",
                       hint: "25565",
                       numeric: true,
+                      controller: serverPortController,
                     ),
                   ),
                 ],
               ),
-              AddServerScanner(),
+              AddServerScanner(
+                onScan: () => handleScan(),
+              ),
             ],
           ),
         ),

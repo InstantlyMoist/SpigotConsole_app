@@ -1,17 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:barcode_scan/barcode_scan.dart';
 
 class AddServerScanner extends StatelessWidget {
 
-  void handleScan() async {
-    var options = ScanOptions(
-      restrictFormat: [BarcodeFormat.qr],
-    );
-    var result = await BarcodeScanner.scan(options: options);
-    print(result.rawContent);
-    //TODO: Validate key here...
-  }
+  VoidCallback onScan;
+
+  AddServerScanner({this.onScan});
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +30,7 @@ class AddServerScanner extends StatelessWidget {
             height: 20,
           ),
           InkWell(
-            onTap: () => handleScan(),
+            onTap: () => onScan(),
             child: Container(
               width: 115,
               height: 42,
