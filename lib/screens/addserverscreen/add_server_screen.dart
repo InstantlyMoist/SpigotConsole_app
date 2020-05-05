@@ -1,5 +1,9 @@
+import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:spigotconsole/handlers/ConnectionHandler.dart';
+import 'package:spigotconsole/handlers/ServerModelHandler.dart';
+import 'package:spigotconsole/models/server_model.dart';
 import 'package:spigotconsole/screens/addserverscreen/components/add_server_appbar.dart';
 import 'package:spigotconsole/screens/addserverscreen/components/add_server_input.dart';
 import 'package:spigotconsole/screens/addserverscreen/components/add_server_scanner.dart';
@@ -12,28 +16,19 @@ class AddServerScreen extends StatelessWidget {
   final TextEditingController serverPortController = new TextEditingController();
 
 
-  void handleScan() async {
-    print(serverNameController.value.text);
-    print(serverIpController.value.text);
-    print(serverPortController.value.text);
+  void handleScan(BuildContext context) async {
 
-    String url = 'ws://${serverIpController.value.text}:${serverPortController.value.text}/spigotconsole/';
-    print(url);
+    /**/
 
-    var channel = IOWebSocketChannel.connect(url);
-
-    channel.stream.listen((message) {
-      channel.sink.add("received!");
-
-    });
-
-    /*var options = ScanOptions(
+    var options = ScanOptions(
       restrictFormat: [BarcodeFormat.qr],
     );
     var result = await BarcodeScanner.scan(options: options);
-    print(result.rawContent);*/
+    print(result.rawContent);
 
-
+    ServerModel model = ServerModel(ip: serverIpController.value.text, key: result.rawContent, port: int.tryParse(serverPortController.value.text), serverName: serverNameController.value.text);
+    ConnectionHandler.connect(context, model, true);
+    ServerModelHandler.addModel(model);
   }
 
   @override
@@ -79,7 +74,7 @@ class AddServerScreen extends StatelessWidget {
                 ],
               ),
               AddServerScanner(
-                onScan: () => handleScan(),
+                onScan: () => handleScan(context),
               ),
             ],
           ),

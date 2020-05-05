@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:spigotconsole/handlers/ServerModelHandler.dart';
+import 'package:spigotconsole/handlers/SharedPreferencesHandler.dart';
+import 'package:spigotconsole/models/server_model.dart';
 import 'package:spigotconsole/screens/addserverscreen/add_server_screen.dart';
 import 'package:spigotconsole/screens/homescreen/list_widget.dart';
 
@@ -39,14 +42,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void loadData() async {
-    print("loading data");
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    var servers = preferences.get("servers");
-    if (servers == null)
+    await SharedPreferencesHandler.loadSharedPreferences();
+    print("Loading shared preferences OK!");
+
+    List<ServerModel> serverModels = ServerModelHandler.loadServerModels();
+    if (serverModels.isEmpty) {
       baseWidget =
           new Text('No servers found, add some by pressing the + icon');
-    else
-      baseWidget = ListWidget();
+    } else {
+      baseWidget = ListWidget(serverModels: serverModels);
+    }
   }
 
   @override
