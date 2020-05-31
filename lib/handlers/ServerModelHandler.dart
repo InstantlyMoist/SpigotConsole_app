@@ -26,4 +26,10 @@ class ServerModelHandler {
     serverModels.add(model);
     SharedPreferencesHandler.sharedPreferences.setString("servers", jsonEncode(serverModels));
   }
+
+  static void removeModel(ServerModel model) {
+    print("Removing server model " + model.toString());
+    serverModels.remove(model);
+    SharedPreferencesHandler.sharedPreferences.setString("servers", jsonEncode(serverModels));
+  }
 }

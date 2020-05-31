@@ -12,7 +12,7 @@ class ErrorDialog extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(5),
           ),
-          backgroundColor: Color(0xFFE07A05),
+          backgroundColor: Theme.of(context).backgroundColor,
           child: Container(
             margin: EdgeInsets.all(20),
             child: Column(

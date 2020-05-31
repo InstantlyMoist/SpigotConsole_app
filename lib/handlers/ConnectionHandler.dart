@@ -17,14 +17,14 @@ class ConnectionHandler {
   static StreamController messageStream;
 
   static void connect(
-      BuildContext context, ServerModel model, bool setup) async {
+      GlobalKey globalKey, ServerModel model, bool setup) async {
     if (connection != null) connection.sink.close();
     if (messageStream != null) messageStream.close();
 
     messageStream = new StreamController.broadcast();
 
     showDialog(
-      context: context,
+      context: globalKey.currentContext,
       child: ConnectionDialog(
         model: model,
       ),
@@ -40,9 +40,9 @@ class ConnectionHandler {
         switch (receivedType) {
           case "INITIALHANDSHAKE":
             if (receivedMessage == "OK") {
-              Navigator.of(context).pop();
+              Navigator.of(globalKey.currentContext).pop();
               Navigator.push(
-                context,
+                globalKey.currentContext,
                 MaterialPageRoute(builder: (context) => BaseServerScreen(serverModel: model,)),
               );
             } else {
@@ -54,16 +54,16 @@ class ConnectionHandler {
         }
       },
       onError: (error) {
-        Navigator.of(context).pop();
-        showDialog(context: context, child: ErrorDialog());
+        Navigator.of(globalKey.currentContext).pop();
+        showDialog(context: globalKey.currentContext, child: ErrorDialog());
       },
       onDone: () {
-        Navigator.of(context).pop();
-        showDialog(context: context, child: DisconnectDialog());
+        Navigator.of(globalKey.currentContext).pop();
+        showDialog(context: globalKey.currentContext, child: DisconnectDialog());
       }
     );
 
-    if (setup) Navigator.pop(context);
+    if (setup) Navigator.pop(globalKey.currentContext);
     connection.sink
         .add(jsonEncode({'type': 'INITIALHANDSHAKE', 'message': model.key}));
 

@@ -31,7 +31,7 @@ class ConsoleScreenInput extends StatelessWidget {
               cursorColor: Colors.orange,
               decoration: InputDecoration(
                 filled: true,
-                fillColor: Color(0xFFE07A05),
+                fillColor: Theme.of(context).accentColor,
                 hintText: hint,
                 hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
                 contentPadding:

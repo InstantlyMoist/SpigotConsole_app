@@ -35,7 +35,7 @@ class AddServerScanner extends StatelessWidget {
               width: 115,
               height: 42,
               decoration: BoxDecoration(
-                color: Color(0xFFE07A05),
+                color: Theme.of(context).accentColor,
                 borderRadius: BorderRadius.circular(5),
               ),
               child: Center(

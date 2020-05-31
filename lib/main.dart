@@ -4,6 +4,7 @@ import 'package:spigotconsole/handlers/ServerModelHandler.dart';
 import 'package:spigotconsole/handlers/SharedPreferencesHandler.dart';
 import 'package:spigotconsole/models/server_model.dart';
 import 'package:spigotconsole/screens/addserverscreen/add_server_screen.dart';
+import 'package:spigotconsole/screens/homescreen/list_item.dart';
 import 'package:spigotconsole/screens/homescreen/list_widget.dart';
 
 void main() => runApp(MyApp());
@@ -12,10 +13,14 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    bool dark = true;
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
+        brightness: dark ? Brightness.dark : Brightness.light,
         primarySwatch: Colors.orange,
+        backgroundColor: dark ? Color(0xFF303030) : Colors.white,
+        accentColor: dark ? Color(0xFF373737) : Color(0xFFE07A05),
         fontFamily: 'CircularStd',
       ),
       home: HomeScreen(title: 'SpigotConsole'),
@@ -33,7 +38,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  GlobalKey _globalKey = GlobalKey();
+
   Widget baseWidget;
+
+  List<ListItem> listItems = List();
+  Map<ServerModel, bool> selectedItems = Map();
+
+  String titleText;
 
   @override
   void initState() {
@@ -46,17 +58,81 @@ class _HomeScreenState extends State<HomeScreen> {
     print("Loading shared preferences OK!");
 
     List<ServerModel> serverModels = ServerModelHandler.loadServerModels();
-    if (serverModels.isEmpty) {
-      baseWidget =
-          new Text('No servers found, add some by pressing the + icon');
-    } else {
-      baseWidget = ListWidget(serverModels: serverModels);
+    setState(() {
+      for (ServerModel model in serverModels) {
+        selectedItems[model] = false;
+      }
+      updateListItems();
+    });
+  }
+
+  void updateBaseWidget() {
+    if (selectedItems.isEmpty) {
+      baseWidget = Text('No servers found, add some by pressing the + icon');
+      return;
     }
+    baseWidget = Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          titleText,
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Expanded(
+          child: ListView.builder(
+            itemCount: selectedItems.keys.length,
+            itemBuilder: (BuildContext context, int index) {
+              return listItems[index];
+            },
+          ),
+        )
+      ],
+    );
+  }
+
+  void updateListItems() {
+    listItems = List();
+    for (ServerModel model in selectedItems.keys) {
+      listItems.add(ListItem(
+        globalKey: _globalKey,
+        model: model,
+        selected: selectedItems[model],
+        hasOtherSelected: hasSelectedServers(),
+        onSelectChange: (model, selected) {
+          selectedItems[model] = selected;
+          setState(() {
+            updateListItems();
+          });
+        },
+      ));
+    }
+    titleText = hasSelectedServers()
+        ? "Selected servers: ${getSelectedServers()}"
+        : "Your servers";
+    updateBaseWidget();
+  }
+
+  bool hasSelectedServers() {
+    return selectedItems.containsValue(true);
+  }
+
+  int getSelectedServers() {
+    int found = 0;
+    for (bool value in selectedItems.values) {
+      if (value) found++;
+    }
+    return found;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _globalKey,
+      backgroundColor: Theme.of(context).backgroundColor,
       appBar: AppBar(
         centerTitle: true,
         title: Text(
@@ -69,13 +145,39 @@ class _HomeScreenState extends State<HomeScreen> {
         child: baseWidget,
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => AddServerScreen()),
-        ),
+        backgroundColor: Theme.of(context).accentColor,
+        onPressed: () {
+          if (hasSelectedServers()) {
+            for (ListItem item in listItems) {
+              if (selectedItems[item.model] == true) {
+                selectedItems.remove(item.model);
+                ServerModelHandler.removeModel(item.model);
+              }
+              print(selectedItems);
+              setState(() {
+                updateListItems();
+              });
+            }
+            print('delete selected servers');
+            return;
+          }
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => AddServerScreen(
+                      globalKey: _globalKey,
+                      onServerAdd: (model) {
+                        selectedItems[model] = false;
+                        setState(() {
+                          updateListItems();
+                        });
+                      },
+                    )),
+          );
+        },
         tooltip: 'Add server',
         child: Icon(
-          Icons.add,
+          hasSelectedServers() ? Icons.delete : Icons.add,
           color: Colors.white,
         ),
       ),

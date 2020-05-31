@@ -43,7 +43,7 @@ class _ConsoleScreenState extends State<ConsoleScreen> {
             child: Container(
               width: double.infinity,
               margin: EdgeInsets.all(20),
-              color: Color(0xFFF3F3F3),
+              color: Theme.of(context).accentColor,
               child: SingleChildScrollView(
                 padding: EdgeInsets.all(10),
                 child: Text(showingText),

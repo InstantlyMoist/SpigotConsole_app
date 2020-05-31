@@ -11,14 +11,17 @@ import 'package:web_socket_channel/io.dart';
 
 class AddServerScreen extends StatelessWidget {
 
+  final GlobalKey globalKey;
+  final Function(ServerModel) onServerAdd;
+
+  AddServerScreen({this.globalKey, this.onServerAdd});
+
   final TextEditingController serverNameController = new TextEditingController();
   final TextEditingController serverIpController = new TextEditingController();
   final TextEditingController serverPortController = new TextEditingController();
 
 
   void handleScan(BuildContext context) async {
-
-    /**/
 
     var options = ScanOptions(
       restrictFormat: [BarcodeFormat.qr],
@@ -27,14 +30,15 @@ class AddServerScreen extends StatelessWidget {
     print(result.rawContent);
 
     ServerModel model = ServerModel(ip: serverIpController.value.text, key: result.rawContent, port: int.tryParse(serverPortController.value.text), serverName: serverNameController.value.text);
-    ConnectionHandler.connect(context, model, true);
+    ConnectionHandler.connect(globalKey, model, true);
     ServerModelHandler.addModel(model);
+    onServerAdd(model);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.orange,
+      backgroundColor: Theme.of(context).backgroundColor,
       body: SafeArea(
         child: Container(
           margin: EdgeInsets.all(23),
