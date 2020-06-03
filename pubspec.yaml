@@ -26,10 +26,19 @@ dependencies:
   cupertino_icons: ^0.1.2
   shared_preferences: 0.5.7
   barcode_scan: 3.0.0
+  ads: ^1.0.0
+  #firebase_admob: 0.9.3+2
 
 dev_dependencies:
+  flutter_launcher_icons: 0.7.5
   flutter_test:
     sdk: flutter
+
+flutter_icons:
+  ios: true
+  android: true
+  image_path_ios: "assets/launcher/icon.png"
+  image_path_android: "assets/launcher/icon.png"
 
 
 # For information on the generic Dart part of this file, see the
@@ -42,6 +51,9 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  assets:
+    - assets/launcher/icon.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

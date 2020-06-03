@@ -1,11 +1,14 @@
+//import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spigotconsole/handlers/ServerModelHandler.dart';
 import 'package:spigotconsole/handlers/SharedPreferencesHandler.dart';
 import 'package:spigotconsole/models/server_model.dart';
 import 'package:spigotconsole/screens/addserverscreen/add_server_screen.dart';
 import 'package:spigotconsole/screens/homescreen/list_item.dart';
-import 'package:spigotconsole/screens/homescreen/list_widget.dart';
+import 'package:flutter/material.dart';
+import 'dart:io' show Platform;
+import 'package:firebase_admob/firebase_admob.dart';
+import 'package:ads/ads.dart';
 
 void main() => runApp(MyApp());
 
@@ -38,6 +41,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  Ads appAds;
+
   GlobalKey _globalKey = GlobalKey();
 
   Widget baseWidget;
@@ -53,7 +58,23 @@ class _HomeScreenState extends State<HomeScreen> {
     loadData();
   }
 
+  final String bannerUnitId = Platform.isAndroid
+      ? 'ca-app-pub-1364717858891314/5403096924'
+      : 'NOT_IMPLEMENTED';
+
   void loadData() async {
+    appAds = Ads(
+      "ca-app-pub-1364717858891314~3160076962",
+      bannerUnitId: bannerUnitId,
+      size: AdSize.banner,
+      keywords: <String>['ibm', 'computers'],
+      contentUrl: 'http://www.ibm.com',
+      childDirected: false,
+
+      testDevices: ['IN2023'],
+      testing: true,
+    );
+
     await SharedPreferencesHandler.loadSharedPreferences();
     print("Loading shared preferences OK!");
 
@@ -64,6 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       updateListItems();
     });
+    appAds.showBannerAd();
   }
 
   void updateBaseWidget() {
@@ -130,55 +152,61 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _globalKey,
-      backgroundColor: Theme.of(context).backgroundColor,
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(
-          widget.title,
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
-      body: Container(
-        margin: EdgeInsets.all(23),
-        child: baseWidget,
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Theme.of(context).accentColor,
-        onPressed: () {
-          if (hasSelectedServers()) {
-            for (ListItem item in listItems) {
-              if (selectedItems[item.model] == true) {
-                selectedItems.remove(item.model);
-                ServerModelHandler.removeModel(item.model);
+    return Container(
+      color: Theme.of(context).backgroundColor,
+      child: Padding(
+        //TODO: Check if banner is actually loaded (donation = off) if not, remove padding
+        padding: EdgeInsets.only(bottom: 50),
+        child: Scaffold(
+          key: _globalKey,
+          appBar: AppBar(
+            centerTitle: true,
+            title: Text(
+              widget.title,
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+          body: Container(
+            margin: EdgeInsets.all(23),
+            child: baseWidget,
+          ),
+          floatingActionButton: FloatingActionButton(
+            backgroundColor: Theme.of(context).accentColor,
+            onPressed: () {
+              if (hasSelectedServers()) {
+                for (ListItem item in listItems) {
+                  if (selectedItems[item.model] == true) {
+                    selectedItems.remove(item.model);
+                    ServerModelHandler.removeModel(item.model);
+                  }
+                  print(selectedItems);
+                  setState(() {
+                    updateListItems();
+                  });
+                }
+                print('delete selected servers');
+                return;
               }
-              print(selectedItems);
-              setState(() {
-                updateListItems();
-              });
-            }
-            print('delete selected servers');
-            return;
-          }
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => AddServerScreen(
-                      globalKey: _globalKey,
-                      onServerAdd: (model) {
-                        selectedItems[model] = false;
-                        setState(() {
-                          updateListItems();
-                        });
-                      },
-                    )),
-          );
-        },
-        tooltip: 'Add server',
-        child: Icon(
-          hasSelectedServers() ? Icons.delete : Icons.add,
-          color: Colors.white,
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => AddServerScreen(
+                          globalKey: _globalKey,
+                          onServerAdd: (model) {
+                            selectedItems[model] = false;
+                            setState(() {
+                              updateListItems();
+                            });
+                          },
+                        )),
+              );
+            },
+            tooltip: 'Add server',
+            child: Icon(
+              hasSelectedServers() ? Icons.delete : Icons.add,
+              color: Colors.white,
+            ),
+          ),
         ),
       ),
     );
