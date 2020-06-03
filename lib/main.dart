@@ -58,11 +58,26 @@ class _HomeScreenState extends State<HomeScreen> {
     loadData();
   }
 
+  bool adOpen = false;
+
   final String bannerUnitId = Platform.isAndroid
       ? 'ca-app-pub-1364717858891314/5403096924'
       : 'NOT_IMPLEMENTED';
 
   void loadData() async {
+    var eventListener = (MobileAdEvent event) {
+      if (event == MobileAdEvent.loaded) {
+        setState(() {
+          adOpen = true;
+        });
+      }
+      if (event == MobileAdEvent.closed) {
+        setState(() {
+          adOpen = false;
+        });
+      }
+    };
+
     appAds = Ads(
       "ca-app-pub-1364717858891314~3160076962",
       bannerUnitId: bannerUnitId,
@@ -70,7 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
       keywords: <String>['ibm', 'computers'],
       contentUrl: 'http://www.ibm.com',
       childDirected: false,
-
+      listener: eventListener,
       testDevices: ['IN2023'],
       testing: true,
     );
@@ -156,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
       color: Theme.of(context).backgroundColor,
       child: Padding(
         //TODO: Check if banner is actually loaded (donation = off) if not, remove padding
-        padding: EdgeInsets.only(bottom: 50),
+        padding: EdgeInsets.only(bottom: adOpen ? 50 : 0),
         child: Scaffold(
           key: _globalKey,
           appBar: AppBar(
@@ -184,7 +199,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     updateListItems();
                   });
                 }
-                print('delete selected servers');
                 return;
               }
               Navigator.push(
