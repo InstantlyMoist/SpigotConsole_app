@@ -1,14 +1,12 @@
 //import 'package:firebase_admob/firebase_admob.dart';
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 import 'package:spigotconsole/handlers/ServerModelHandler.dart';
 import 'package:spigotconsole/handlers/SharedPreferencesHandler.dart';
+import 'package:spigotconsole/handlers/ads.dart';
 import 'package:spigotconsole/models/server_model.dart';
 import 'package:spigotconsole/screens/addserverscreen/add_server_screen.dart';
 import 'package:spigotconsole/screens/homescreen/list_item.dart';
-import 'package:flutter/material.dart';
-import 'dart:io' show Platform;
-import 'package:firebase_admob/firebase_admob.dart';
-import 'package:ads/ads.dart';
 
 void main() => runApp(MyApp());
 
@@ -41,7 +39,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  Ads appAds;
+  bool adOpen = AppAds?.event == MobileAdEvent.loaded;
 
   GlobalKey _globalKey = GlobalKey();
 
@@ -58,38 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
     loadData();
   }
 
-  bool adOpen = false;
-
-  final String bannerUnitId = Platform.isAndroid
-      ? 'ca-app-pub-1364717858891314/5403096924'
-      : 'NOT_IMPLEMENTED';
-
   void loadData() async {
-    var eventListener = (MobileAdEvent event) {
-      if (event == MobileAdEvent.loaded) {
-        setState(() {
-          adOpen = true;
-        });
-      }
-      if (event == MobileAdEvent.closed) {
-        setState(() {
-          adOpen = false;
-        });
-      }
-    };
-
-    appAds = Ads(
-      "ca-app-pub-1364717858891314~3160076962",
-      bannerUnitId: bannerUnitId,
-      size: AdSize.banner,
-      keywords: <String>['ibm', 'computers'],
-      contentUrl: 'http://www.ibm.com',
-      childDirected: false,
-      listener: eventListener,
-      testDevices: ['IN2023'],
-      testing: true,
-    );
-
     await SharedPreferencesHandler.loadSharedPreferences();
     print("Loading shared preferences OK!");
 
@@ -100,7 +67,16 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       updateListItems();
     });
-    appAds.showBannerAd();
+
+    AppAds.init();
+
+    AppAds.controller.stream.listen((event) {
+      setState(() {
+        adOpen = event == MobileAdEvent.loaded;
+      });
+    });
+
+    AppAds.showBanner();
   }
 
   void updateBaseWidget() {
@@ -163,6 +139,12 @@ class _HomeScreenState extends State<HomeScreen> {
       if (value) found++;
     }
     return found;
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    AppAds.dispose();
   }
 
   @override

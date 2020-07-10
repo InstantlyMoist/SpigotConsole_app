@@ -29,8 +29,12 @@ class AddServerInput extends StatelessWidget {
             data: Theme.of(context).copyWith(
               splashColor: Colors.transparent,
             ),
-            child: TextField(
+            child: TextFormField(
               controller: controller,
+              validator: (value) {
+                if (value.isEmpty) return "$title may not be empty";
+                return null;
+              },
               keyboardType: numeric ? TextInputType.number : TextInputType.text,
               autofocus: false,
               style: TextStyle(fontSize: 14, color: Colors.white),

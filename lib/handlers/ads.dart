@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:io' show Platform;
+import 'dart:async';
 import 'package:firebase_admob/firebase_admob.dart';
 
 import 'package:ads/ads.dart';
@@ -7,60 +8,39 @@ import 'package:ads/ads.dart';
 class AppAds {
   static Ads _ads;
 
+  static StreamController _controller;
+  static MobileAdEvent _event;
+
+  static MobileAdEvent get event => _event;
+
+  static StreamController get controller => _controller;
+
   static final String _appId = Platform.isAndroid
-      ? 'ca-app-pub-3940256099942544~3347511713'
-      : 'ca-app-pub-3940256099942544~1458002511';
+      ? 'ca-app-pub-1364717858891314~3160076962'
+      : 'NOT_IMPLEMENTED';
 
   static final String _bannerUnitId = Platform.isAndroid
-      ? 'ca-app-pub-3940256099942544/6300978111'
-      : 'ca-app-pub-3940256099942544/2934735716';
+      ? 'ca-app-pub-1364717858891314/5403096924'
+      : 'NOT_IMPLEMENTED';
 
-  /// Assign a listener.
-  static MobileAdListener  _eventListener = (MobileAdEvent event) {
-    if (event == MobileAdEvent.clicked) {
-      print("_eventListener: The opened ad is clicked on.");
-    }
-  };
-
-  static void showBanner(
-      {String adUnitId,
-        AdSize size,
-        List<String> keywords,
-        String contentUrl,
-        bool childDirected,
-        List<String> testDevices,
-        bool testing,
-        MobileAdListener listener,
-        State state,
-        double anchorOffset,
-        AnchorType anchorType}) =>
-      _ads?.showBannerAd(
-          adUnitId: adUnitId,
-          size: size,
-          keywords: keywords,
-          contentUrl: contentUrl,
-          childDirected: childDirected,
-          testDevices: testDevices,
-          testing: testing,
-          listener: listener,
-          state: state,
-          anchorOffset: anchorOffset,
-          anchorType: anchorType);
+  static void showBanner() => _ads.showBannerAd();
 
   static void hideBanner() => _ads?.closeBannerAd();
 
-  /// Call this static function in your State object's initState() function.
-  static void init() => _ads ??= Ads(
-    _appId,
-    bannerUnitId: _bannerUnitId,
-    keywords: <String>['ibm', 'computers'],
-    contentUrl: 'http://www.ibm.com',
-    childDirected: false,
-    testDevices: ['Samsung_Galaxy_SII_API_26:5554'],
-    testing: false,
-    listener: _eventListener,
-  );
+  static void init() {
+    _controller = StreamController.broadcast();
+    _ads ??= Ads(
+      _appId,
+      bannerUnitId: _bannerUnitId,
+      size: AdSize.banner,
+      keywords: <String>['minecraft', 'server', 'computers', 'console'],
+      listener: (MobileAdEvent event) {
+        _event = event;
+        _controller.add(event);
+      },
+      childDirected: false,
+    );
+  }
 
-  /// Remember to call this in the State object's dispose() function.
   static void dispose() => _ads?.dispose();
 }

@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:spigotconsole/handlers/ConnectionHandler.dart';
+import 'package:spigotconsole/handlers/ads.dart';
 import 'package:spigotconsole/models/server_model.dart';
 import 'package:spigotconsole/screens/serverscreen/console_screen.dart';
+import 'package:firebase_admob/firebase_admob.dart';
 
 class BaseServerScreen extends StatefulWidget {
   @override
@@ -14,6 +16,18 @@ class BaseServerScreen extends StatefulWidget {
 }
 
 class _BaseServerScreenState extends State<BaseServerScreen> {
+
+  bool adOpen = AppAds?.event == MobileAdEvent.loaded;
+
+  @override
+  void initState() {
+    super.initState();
+    AppAds.controller.stream.listen((event) {
+      setState(() {
+        adOpen = event == MobileAdEvent.loaded;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,12 +54,15 @@ class _BaseServerScreenState extends State<BaseServerScreen> {
               ],
             ),
           ),
-          body: TabBarView(
-            children: [
-              Icon(Icons.directions_car),
-              ConsoleScreen(),
-              Icon(Icons.directions_bike),
-            ],
+          body: Padding(
+            padding: EdgeInsets.only(bottom: adOpen ? 50 : 0),
+            child: TabBarView(
+              children: [
+                Icon(Icons.directions_car),
+                ConsoleScreen(),
+                Icon(Icons.directions_bike),
+              ],
+            ),
           ),
         ),
       ),
