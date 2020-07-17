@@ -17,14 +17,14 @@ class BaseServerScreen extends StatefulWidget {
 
 class _BaseServerScreenState extends State<BaseServerScreen> {
 
-  bool adOpen = AppAds?.event == MobileAdEvent.loaded;
+  bool adOpen = AppAds.open;
 
   @override
   void initState() {
     super.initState();
     AppAds.controller.stream.listen((event) {
       setState(() {
-        adOpen = event == MobileAdEvent.loaded;
+        adOpen = event;
       });
     });
   }

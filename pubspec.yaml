@@ -11,7 +11,7 @@ description: Brings the console to your phone
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.1+2
+version: 1.0.5+9
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -26,8 +26,8 @@ dependencies:
   cupertino_icons: ^0.1.2
   shared_preferences: 0.5.7
   barcode_scan: 3.0.0
-  ads: ^1.0.0
-  #firebase_admob: 0.9.3+2
+  in_app_purchase: 0.3.4+1
+  firebase_admob: 0.9.3+2
 
 dev_dependencies:
   flutter_launcher_icons: 0.7.5

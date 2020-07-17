@@ -8,17 +8,14 @@ class ServerModelHandler {
 
   static List<ServerModel> serverModels;
 
-  static List<ServerModel> loadServerModels() {
-    print("Loading server models");
+  static Future<void> init() {
     serverModels = new List();
-    var serverString = SharedPreferencesHandler.sharedPreferences.get("servers");
-    if (serverString == null) return serverModels;
-    var servers = jsonDecode(serverString);
-    print(servers);
-    for (var server in servers) {
+    String serverString = SharedPreferencesHandler.sharedPreferences.get("servers");
+    if (serverString.isEmpty) return null;
+    for (var server in jsonDecode(serverString)) {
       serverModels.add(ServerModel.fromJson(server));
     }
-    return serverModels;
+    return null;
   }
 
   static void addModel(ServerModel model) {

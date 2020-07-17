@@ -10,7 +10,7 @@ class ConsoleScreen extends StatefulWidget {
   _ConsoleScreenState createState() => _ConsoleScreenState();
 }
 
-class _ConsoleScreenState extends State<ConsoleScreen> {
+class _ConsoleScreenState extends State<ConsoleScreen> with AutomaticKeepAliveClientMixin<ConsoleScreen> {
   final TextEditingController consoleController = new TextEditingController();
 
   RichText finalText;
@@ -18,6 +18,9 @@ class _ConsoleScreenState extends State<ConsoleScreen> {
   List<TextSpan> log;
 
   GlobalKey key = new GlobalKey();
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -28,7 +31,6 @@ class _ConsoleScreenState extends State<ConsoleScreen> {
         () {
           for (String colorable in data['message'].split('§')) {
             if (colorable.isNotEmpty) {
-              print(data['message'].split('§'));
               String colorCode = colorable[0];
               colorable = colorable.substring(1, colorable.length);
               log.add(
@@ -78,8 +80,6 @@ class _ConsoleScreenState extends State<ConsoleScreen> {
   }
 
   RichText buildText() {
-    print("building text...");
-    print(log);
     return RichText(
       text: TextSpan(children: log.toList()),
     );
